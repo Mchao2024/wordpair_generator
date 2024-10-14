@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'dart:math'; // Import the math library for random number generation
+import 'MyWords.dart'; // Import your custom word list
 
 class RandomWords extends StatefulWidget {
   @override
@@ -7,8 +8,27 @@ class RandomWords extends StatefulWidget {
 }
 
 class RandomWordsState extends State<RandomWords> {
-  final _randomWordPairs = <WordPair>[];
-  final _savedWordPairs = Set<WordPair>();
+  final List<String> _randomWordPairs = [];
+  final Set<String> _savedWordPairs = Set<String>();
+  final int _numberOfPairs = 10; // Desired number of random pairs
+
+  // Function to generate random car word pairs from the MyWords list
+  void _generateRandomPairs() {
+    final random = Random();
+    _randomWordPairs.clear(); // Clear existing pairs to regenerate
+
+    // Generate random combinations of car words
+    while (_randomWordPairs.length < min(_numberOfPairs, MyWords.length)) {
+      final firstWord = MyWords[random.nextInt(MyWords.length)];
+      final secondWord = MyWords[random.nextInt(MyWords.length)];
+      final combinedWordPair = '$firstWord & $secondWord'; // Combine words
+
+      // Avoid duplicates
+      if (!_randomWordPairs.contains(combinedWordPair)) {
+        _randomWordPairs.add(combinedWordPair);
+      }
+    }
+  }
 
   Widget _buildList() {
     return ListView.builder(
@@ -17,24 +37,27 @@ class RandomWordsState extends State<RandomWords> {
         if (item.isOdd) return Divider();
         final index = item ~/ 2;
         if (index >= _randomWordPairs.length) {
-          _randomWordPairs.addAll(generateWordPairs().take(10));
+          _generateRandomPairs(); // Generate pairs if needed
         }
         return _buildRow(_randomWordPairs[index]);
       },
     );
   }
 
-  Widget _buildRow(WordPair pair) {
+  Widget _buildRow(String pair) {
     final alreadySaved = _savedWordPairs.contains(pair);
 
     return ListTile(
       title: Text(
-        pair.asPascalCase,
-        style: const TextStyle(fontSize: 18),
+        pair,
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.white,
+        ),
       ),
       trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
+        alreadySaved ? Icons.star : Icons.star_border,
+        color: alreadySaved ? const Color.fromARGB(255, 243, 239, 22) : null,
       ),
       onTap: () {
         setState(() {
@@ -49,34 +72,37 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   void _pushSaved() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (BuildContext context) {
-      final Iterable<ListTile> tiles = _savedWordPairs.map((WordPair pair) {
-        return ListTile(
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (BuildContext context) {
+        final Iterable<ListTile> tiles = _savedWordPairs.map((String pair) {
+          return ListTile(
             title: Text(
-          pair.asPascalCase,
-          style: TextStyle(fontSize: 16.0),
-        ));
-      });
+              pair,
+              style: const TextStyle(
+                fontSize: 16.0,
+                color: Colors.white,
+              ),
+            ),
+          );
+        });
 
-      final List<Widget> divided =
-          ListTile.divideTiles(context: context, tiles: tiles).toList();
-      return Scaffold(
-        appBar: AppBar(title: Text('Saved WordPairs')),
-        body: ListView(
-          children: divided,
-        ),
-      );
-    }));
+        final List<Widget> divided =
+            ListTile.divideTiles(context: context, tiles: tiles).toList();
+        return Scaffold(
+          appBar: AppBar(title: const Text('Saved Car Models')),
+          body: ListView(children: divided),
+        );
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WordPair Generator'),
+        title: const Text('Random Cars Generator'),
         actions: <Widget>[
-          IconButton(onPressed: _pushSaved, icon: Icon(Icons.list))
+          IconButton(onPressed: _pushSaved, icon: Icon(Icons.list)),
         ],
       ),
       body: _buildList(),

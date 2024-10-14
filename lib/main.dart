@@ -11,8 +11,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(
-            primarySwatch: generateMaterialColor(Palette.primaryColor)),
-        home: RandomWords());
+      theme: ThemeData(
+        primarySwatch: generateMaterialColor(Palette.primaryColor),
+        scaffoldBackgroundColor: Colors.black, // Set background color to black
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.white), // Set default text color to white
+          headlineSmall: TextStyle(color: Colors.white), // AppBar title text color to white
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 8, 45, 212), // AppBar background color to black
+          foregroundColor: Colors.white, // AppBar text/icon color to white
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Icon color to white
+        ),
+      ),
+      home: RandomWords(),
+    );
   }
 }
